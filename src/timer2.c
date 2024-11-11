@@ -1,7 +1,9 @@
 #include "timer2.h"
-
+#include "timer4.h"
 //int timerTick = 0;
-
+TIMER2_typedef timer2 = {
+	.init = timer2_Init
+};
 void timer2_Init(void) {
 
 	RCC->APB1ENR |= 1 << 0;  // timer clock enable
@@ -12,5 +14,4 @@ void timer2_Init(void) {
 	TIM2->EGR |= TIM_EGR_UG;
 	NVIC_EnableIRQ(TIM2_IRQn);
 	TIM2->CR1 |= 1 << 0;
-
 }

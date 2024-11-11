@@ -2,6 +2,12 @@
 
 volatile int timerTick = 0;
 
+DELAY_typedef delay = {
+    .init = timer4_Init,
+    .ms = delay_ms,
+    .us = delay_us
+};
+
 void delay_ms(int ms) {
 
 	//timerTick = 0;

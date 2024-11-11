@@ -7,6 +7,16 @@
 #include <string.h>
 #include "stm32f1xx.h"
 #include "timer4.h"
+
+typedef struct 
+{
+    void (*init)(void);
+    void (*print)(char data);
+    void (*printf)(char *str);
+    void (*printn)(float x);
+} UART_typedef;
+
+extern UART_typedef debug;
 void uart_init(void);
 void USART1_IRQHandler(void);
 void uart_print(char data);

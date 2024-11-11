@@ -2,6 +2,9 @@
     "files.associations": {
         "stm32f1xx.h": "c",
         "stdio.h": "c",
-        "custom_init.h": "c"
+        "custom_init.h": "c",
+        "uart.h": "c",
+        "timer4.h": "c",
+        "timer2.h": "c"
     }
 }

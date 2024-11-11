@@ -17,7 +17,7 @@ extern uint8_t timer2_count;
 extern long adc1, adc2, adc3, adc4, adc5, adc6;
 extern float mains_power;
 extern float mains_energy;
-
+extern uint8_t counter_check;
 void custom_init(void);
 typedef struct {
 	uint16_t temp;
@@ -25,5 +25,7 @@ typedef struct {
 	float value;
 	float final_value;
 } readValue_t;
+
+extern readValue_t  mains, ac_current;
 
 #endif /* INC_CUSTOM_INIT_H_ */

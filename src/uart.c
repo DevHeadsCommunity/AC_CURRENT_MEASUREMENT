@@ -3,6 +3,13 @@ volatile char temp_uart_data[20] = {0};
 uint8_t debug_flag = 0;
 int data_debug_position =0;
 //char value[10] ={0};
+
+UART_typedef debug = {
+	.init = uart_init,
+	.print = uart_print,
+	.printf = uart_printf,
+	.printn = uart_printn
+};
 void uart_init(void) {
      RCC->APB2ENR |= (1 << 0);
 	AFIO->MAPR |= (1 << 2); // remap uart to pb6 for tx pb7 for rx
