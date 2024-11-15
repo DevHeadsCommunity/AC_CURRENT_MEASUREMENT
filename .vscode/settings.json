@@ -5,6 +5,7 @@
         "custom_init.h": "c",
         "uart.h": "c",
         "timer4.h": "c",
-        "timer2.h": "c"
+        "timer2.h": "c",
+        "adc.h": "c"
     }
 }

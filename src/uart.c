@@ -11,7 +11,7 @@ UART_typedef debug = {
 	.printn = uart_printn
 };
 void uart_init(void) {
-     RCC->APB2ENR |= (1 << 0);
+   /*  RCC->APB2ENR |= (1 << 0);
 	AFIO->MAPR |= (1 << 2); // remap uart to pb6 for tx pb7 for rx
 	RCC->APB2ENR |= (1 << 14);  //  enable usart1 clock
 	RCC->APB2ENR |= (1 << 3);  // enable port A since TX = PA9 and RX = PA10
@@ -36,15 +36,45 @@ void uart_init(void) {
 	// enabling the tx, rx and uart enable7
 	USART1->CR1 |= (3 << 2); // enabling tx and rx
 	USART1->CR1 |= (1 << 13);   // enabling usart1
-	NVIC_EnableIRQ(USART1_IRQn);
+	NVIC_EnableIRQ(USART1_IRQn);*/
+
+ RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;   // Enable GPIOB clock
+  RCC->APB1ENR |= RCC_APB1ENR_USART3EN; // Enable USART3 clock
+
+  // Configure PB10 (TX) as Alternate Function Push-Pull, max speed 50 MHz
+  GPIOB->CRH &= ~(GPIO_CRH_MODE10 | GPIO_CRH_CNF10);
+  GPIOB->CRH |= (GPIO_CRH_MODE10_1 | GPIO_CRH_CNF10_1); // PB10: AF push-pull
+
+  // Configure PB11 (RX) as Input Floating
+  GPIOB->CRH &= ~(GPIO_CRH_MODE11 | GPIO_CRH_CNF11);
+  GPIOB->CRH |= (GPIO_CRH_CNF11_0); // PB11: Input floating
+
+  // Configure USART3: 9600 baud, 8 data bits, 1 stop bit, no parity
+  USART3->BRR =
+      (234 << 4) | 6;          // Set baud rate to 9600, assuming PCLK1 = 36 MHz
+  USART3->CR1 &= ~USART_CR1_M; // 8 data bits
+  USART3->CR2 &= ~USART_CR2_STOP; // 1 stop bit
+  USART3->CR1 &= ~USART_CR1_PCE;  // No parity
+
+  // Enable USART3, Transmitter, and Receiver
+
+  USART3->CR1 |= USART_CR1_TE; // Enable Transmitter
+  USART3->CR1 |= USART_CR1_RE; // Enable Receiver
+
+  // Enable USART3 Receive interrupt (RXNEIE)
+  USART3->CR1 |= USART_CR1_RXNEIE;
+  USART3->CR1 |= USART_CR1_UE; // Enable USART3
+  // Enable USART3 interrupt in NVIC
+  NVIC_EnableIRQ(USART3_IRQn);
+  NVIC_SetPriority(USART3_IRQn, 1); // Set priority (optional)
 
 }
 
 /////
 
-void USART1_IRQHandler(void) {
+void USART3_IRQHandler(void) {
 
-	if ( USART1->SR & 0x20) {
+	if ( USART3->SR & 0x20) {
 
 
 //		if (debug_flag == 1) {
@@ -58,20 +88,20 @@ void USART1_IRQHandler(void) {
 				//debug_flag = 0;
 				//temp_uart_data[data_debug_position] = (char) USART1->DR;
 				//data_debug_position++;
-debug_flag = USART1->DR;
+debug_flag = USART3->DR;
 
 		//GPIOA->ODR |= (1 << 11);
 	}
-	if (USART1->SR & 0x80) {
+	if (USART3->SR & 0x80) {
 
 	}
 
 }
 
 void uart_print(char data) {
-	USART1->DR = data;
+	USART3->DR = data;
     
-	while (!(USART1->SR & 0x40))
+	while (!(USART3->SR & 0x40))
 		;
 }
 

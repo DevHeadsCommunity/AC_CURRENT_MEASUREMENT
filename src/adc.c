@@ -4,7 +4,7 @@ uint16_t lcdCount = 0;
 uint8_t lcdCheck = 0;
 //float battery;
 
-uint16_t adcValue[4] = { 0, 0, 0, 0};
+volatile uint16_t adcValue[4] = { 0, 0, 0, 0};
 void adc_Init(void) {
 
 	/*	 RCC -> CFGR |= (0X06<14); // MAKING SURE PRESCALER DOES NOT EXCEED 14MHZ
