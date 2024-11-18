@@ -6,6 +6,7 @@
         "uart.h": "c",
         "timer4.h": "c",
         "timer2.h": "c",
-        "adc.h": "c"
+        "adc.h": "c",
+        "stdint.h": "c"
     }
 }

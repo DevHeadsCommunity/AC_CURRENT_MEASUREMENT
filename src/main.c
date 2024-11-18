@@ -11,6 +11,8 @@
 #include "adc.h"
 #include "timer2.h"
 #include "custom_init.h"
+#include "eeprom.h"
+#include "i2c.h"
 int counter = 0;
 int value = 0;
 
@@ -24,42 +26,22 @@ int main()
 	delay.ms(10);
 	adc_Init();
 	custom_init();
+	i2c_init();
 	timer2.init();
-	//TIM2->CR1 |= 1 << 0;
-	uint16_t increase = 0;
+	debug.init();
+	delay.ms(1);
+	debug.printf("location 0 = ");
+	delay_ms(1);
+	debug.printn(eeprom_read(0));
+	debug.printf("\r\n");
 	while (1)
 	{
 
-		/*if (counter_check > 0)
-		{  //increase++;
-		debug.printf("MAINS = ");
-			delay.ms(1);
-			debug.printn(mains.final_value);
-			delay.ms(1);
-			debug.printf("  ");
-			delay.ms(1);
-			debug.printf("AC_CURRENT = ");
-			delay.ms(1);
-			debug.printn(ac_current.final_value);
-			delay.ms(1);
-			debug.printf("  ");
-			delay.ms(1);
-			debug.printf("ENERGY = ");
-			delay.ms(1);
-			debug.printn(mains_energy);
-			delay.ms(1);
-			
-			debug.printf("\r\n");
-			GPIOA->ODR ^= (1 << 11);
-			
-}
-	*/	
-
-if (value1 > 400)
-	{
-		TIM2->CR1 &= ~(1 << 0);
-		value1 = 0;
-		//TIM2->CR1 &= ~(1 << 0);
+		if (value1 > 400)
+		{
+			TIM2->CR1 &= ~(1 << 0);
+			value1 = 0;
+			// TIM2->CR1 &= ~(1 << 0);
 			mains.max = mains.max * (6.6 / 4095);
 			ac_current.max = ac_current.max * (6.6 / 4095);
 
@@ -77,17 +59,13 @@ if (value1 > 400)
 			mains.max = 0;
 			ac_current.max = 0;
 			counter_check = 0;
-		//	debug.printf("increase = ");
-		//	debug.printn(increase);
-		//	debug.printf("\r\n");
 			timer2_count++;
 			TIM2->CR1 |= 1 << 0;
-}
-		
+		}
 
 		if (timer2_count > 50)
 		{
-             counter_check = 1;
+			counter_check = 1;
 			mains.final_value = mains.value / timer2_count;
 
 			if (mains.final_value < MIN_VOLTAGE_THRESHOLD)
@@ -110,7 +88,7 @@ if (value1 > 400)
 
 			mains.value = 0;
 			ac_current.value = 0;
-			
+
 			timer2_count = 0;
 			debug.printf("MAINS = ");
 			delay.ms(1);
@@ -128,21 +106,20 @@ if (value1 > 400)
 			delay.ms(1);
 			debug.printn(mains_energy);
 			delay.ms(1);
-			
+
 			debug.printf("\r\n");
 			GPIOA->ODR ^= (1 << 11);
 		}
-	
-		
-		//GPIOA->ODR ^= (1 << 11);
-		//delay.ms(1000);
+
+		// GPIOA->ODR ^= (1 << 11);
+		// delay.ms(1000);
 	}
 }
 
 void TIM2_IRQHandler(void)
 {
 	// timerTick++;
-	value1++;
+
 	/* PA0 = ADCVALUE[1];
 	 * PA1 = ADCVALUE[2];
 	 * PA4 = ADCVALUE[3];
@@ -158,7 +135,7 @@ void TIM2_IRQHandler(void)
 	*/
 	//
 	//
-
+	value1++;
 	if (mains.temp = adcValue[2], mains.temp > mains.max)
 	{ // initially adcValue[2]
 		mains.max = mains.temp;
@@ -167,11 +144,6 @@ void TIM2_IRQHandler(void)
 	{ // initially adcValue[2]
 		ac_current.max = ac_current.temp;
 	}
-
-	// triggers every 0.02sec
-	
-
-	// calculate energy every seconds
 
 	TIM2->SR &= ~(1 << 0); // ack the interrupt
 }
