@@ -28,6 +28,7 @@ int main()
 	custom_init();
 	i2c_init();
 	timer2.init();
+	delay.ms(9000);
 	debug.init();
 	delay.ms(1);
 	debug.printf("location 0 = ");
@@ -46,7 +47,7 @@ int main()
 			ac_current.max = ac_current.max * (6.6 / 4095);
 
 			mains.max = mains.max - 3.281;
-			ac_current.max = ac_current.max - 3.281;
+			ac_current.max = ac_current.max - 3.291;
 
 			mains.max = mains.max * 249.73;
 			ac_current.max = ac_current.max * 8.0;
