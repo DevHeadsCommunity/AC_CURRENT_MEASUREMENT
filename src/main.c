@@ -36,7 +36,7 @@ int main()
 	debug.printn(eeprom_read(0));
 	debug.printf("\r\n");
 	while (1)
-	{
+	{ 
 
 		if (value1 > 400)
 		{
@@ -47,7 +47,7 @@ int main()
 			ac_current.max = ac_current.max * (6.6 / 4095);
 
 			mains.max = mains.max - 3.281;
-			ac_current.max = ac_current.max - 3.291;
+			ac_current.max = ac_current.max - 3.281;
 
 			mains.max = mains.max * 249.73;
 			ac_current.max = ac_current.max * 8.0;
