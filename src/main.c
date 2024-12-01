@@ -13,6 +13,7 @@
 #include "custom_init.h"
 #include "eeprom.h"
 #include "i2c.h"
+#include "gsm.h"
 int counter = 0;
 int value = 0;
 
@@ -31,9 +32,9 @@ int main()
 	delay.ms(9000);
 	debug.init();
 	delay.ms(1);
-	debug.printf("location 0 = ");
+	//debug.printf("location 0 = ");
 	delay_ms(1);
-	debug.printn(eeprom_read(0));
+	//debug.printn(eeprom_read(0));
 	debug.printf("\r\n");
 	while (1)
 	{

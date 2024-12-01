@@ -22,16 +22,14 @@ char* buff_() {
 //
 //}
 
-void gsm_send_to_server(int battery_percent, int energy_inv_used,
-		int energy_grid_used, int energy_generated, int grid_avail,
-		int solar_avail, int device_id, char *duration) {
+void gsm_send_to_server(int power_consumed, int energy_used,
+		int ac_voltage, int current) {
 
 	memset(jsonPayload, '\0', strlen(jsonPayload));
 	memset(value33, '\0', strlen(value33));
 	sprintf(jsonPayload,
-			"{\"battery_percent\": %d, \"energy_generated\": %d, \"energy_consumed\": %d, \"grid_available\": %d,  \"solar_available\": %d, \"battery_duration\": %s, \"energy_grid_used\": %d, \"energy_inv_used\": %d}",
-			battery_percent, energy_generated, device_id, grid_avail,
-			solar_avail, duration, energy_grid_used, energy_inv_used);
+			"{\"power\": %d, \"energy\": %d, \"ac_voltage\": %d, \"current\": %d}",
+			power_consumed, energy_used, ac_voltage, current);
 	// Send the HTTP POST request with the JSON payload
 	gsm_printf("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"\r\n"); // Set GPRS connection type
 	delay_ms(2000);
@@ -44,9 +42,7 @@ void gsm_send_to_server(int battery_percent, int energy_inv_used,
 	delay_ms(2000);
 	gsm_printf("AT+HTTPPARA=\"CID\",1\r\n");
 	delay_ms(2000);
-	gsm_printf(
-			"AT+HTTPPARA=\"URL\",\"http://homefort-be-staging-41ad105d39de.herokuapp.com/v1/solar-service/record-solar-readings/10\"\r\n");
-	//gsm_printf("AT+HTTPPARA=\"URL\",\"http://webhook.site/be0ee5b0-7171-4afa-8044-a333847698e4\"\r\n");
+    gsm_printf("AT+HTTPPARA=\"URL\",\"http://webhook.site/be0ee5b0-7171-4afa-8044-a333847698e4\"\r\n");
 	delay_ms(2000);
 	gsm_printf("AT+HTTPPARA=\"CONTENT\",\"application/json\"\r\n");
 	delay_ms(1000);
@@ -119,9 +115,9 @@ void gsm_init() {
 //	AFIO->MAPR |= 1<<2; // remap uart to pb6 for tx pb7 for rx
 	RCC->APB2ENR |= 1 << 2;
 	RCC->APB2ENR |= 1 << 0;
-	RCC->APB1ENR |= 1 << 17;
-	GPIOA->CRL &= ~(0x0F << 8);   //clearing tx pin to make all zeros
-	GPIOA->CRL |= (0x0B << 8); //setting the Tx pin to output, and alternate function push pull 1011
+	RCC->APB2ENR |= 1 << 14;
+	GPIOA->CRH &= ~(0x0F << 4);   //clearing tx pin to make all zeros
+	GPIOA->CRH |= (0x0B << 4); //setting the Tx pin to output, and alternate function push pull 1011
 	///GPIOC ->CRH &= ~(0x0F << 20);
 	//GPIOC ->CRH |= (3 << 20);
 	// setting the rx pin is not necessary, because at reset the pins are set as input  ** TAKE NOTE*
@@ -129,7 +125,7 @@ void gsm_init() {
 	//GPIOB ->CRL |= (1 << 28);    //setting the rx pin to input
 
 	//setting the baudrate in BRR register
-	USART2->BRR = 0xEA6;	//0x271;//0x1D4C; // setting the baudrate to 9600
+	USART1->BRR = 0x1D4C;	//0x271;//0x1D4C; // setting the baudrate to 9600
 
 	// enabling interrupt on uasart1 for tx and rx
 	//USART2 -> CR1 |= (0xA0 <<0);
@@ -137,43 +133,32 @@ void gsm_init() {
 	//USART2->CR1 |= USART_CR1_RXNEIE;
 
 	// enabling the tx, rx and uart enable7
-	USART2->CR1 |= (3 << 2); // enabling tx and rx
-	USART2->CR1 |= (1 << 13);   // enabling usart1
-	NVIC_EnableIRQ(USART2_IRQn);
-
+	USART1->CR1 |= (3 << 2); // enabling tx and rx
+	USART1->CR1 |= (1 << 13);   // enabling usart1
+	USART1->CR1 |= 1 << 5;
+	NVIC_EnableIRQ(USART1_IRQn);
 }
-void USART2_IRQHandler(void) {
+void USART1_IRQHandler(void) {
 
-	if ( USART2->SR & 0x20) {
+	if ( USART1->SR & 0x20) {
 		if (readFlag == 1) {
 			data_position = strlen(gsm_uart_data2);
-//			memset
 			for (int i = 0; i < data_position; i++) {
 				gsm_uart_data2[i] = 0;
-				//delay_ms(1);
 			}
 			data_position = 0;
 		}
 		readFlag = 0;
-		gsm_uart_data2[data_position] = (char) USART2->DR;
+		gsm_uart_data2[data_position] = (char) USART1->DR;
 		data_position++;
-
 	}
-
 	uart_printf(buff_());
-	//uart_printf("\n\r");
-
-//	char c = (char) USART2->DR;
-//	if(c != '\n' || c!='\r'){
-//		gsm_uart_data = c;
-//	}
-
 }
 
 void gsm_print(uint8_t data) {
-	USART2->DR = data;
+	USART1->DR = data;
 
-	while (!(USART2->SR & 0x40))
+	while (!(USART1->SR & 0x40))
 		;
 }
 
@@ -242,7 +227,7 @@ void gsm_printn(float x) {
 }
 
 void gsm_process_data() {
-	uint8_t letter;
+
 //	if (USART2->SR & (1 << 5)) {
 //
 //		letter = USART2->DR;

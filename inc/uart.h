@@ -19,7 +19,7 @@ typedef struct
 extern UART_typedef debug;
 void uart_init(void);
 void USART1_IRQHandler(void);
-void uart_print(char data);
+void uart_print(uint8_t data);
 void uart_printn(float x);
 void uart_printf(char *str);
 extern volatile char temp_uart_data[];

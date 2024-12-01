@@ -15,7 +15,8 @@ src/adc.c \
 src/eeprom.c \
 src/custom_init.c \
 src/i2c.c \
-src/timer2.c
+src/timer2.c \
+src/gsm.c
 # FreeRTOS/list.c \
 # FreeRTOS/queue.c \
 # FreeRTOS/tasks.c \
