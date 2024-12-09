@@ -14,5 +14,7 @@ typedef struct {
 extern DELAY_typedef delay;
 
 void TIM4_IRQHandler(void);
-
+void timer4_Init(void);
+void delay_us(int us);
+void delay_ms(int ms);
 #endif

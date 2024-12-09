@@ -13,6 +13,7 @@
 #include "custom_init.h"
 #include "eeprom.h"
 #include "i2c.h"
+#include "gsm.h"
 int counter = 0;
 int value = 0;
 
@@ -26,15 +27,20 @@ int main()
 	delay.ms(10);
 	adc_Init();
 	custom_init();
-	i2c_init();
+	//i2c_init();
+	gsm_init();
 	timer2.init();
-	delay.ms(9000);
+	delay.ms(100);
 	debug.init();
 	delay.ms(1);
-	debug.printf("location 0 = ");
-	delay_ms(1);
-	debug.printn(eeprom_read(0));
-	debug.printf("\r\n");
+	// debug.printf("location 0 = ");
+	delay.ms(1);
+	// debug.printn(eeprom_read(0));
+	//	debug.printf("\r\n");
+	GSMPWRKEYON;
+	delay.ms(3000);
+	GSMPWRKEYOFF;
+	delay.ms(1000);
 	while (1)
 	{ 
 
@@ -49,7 +55,7 @@ int main()
 			mains.max = mains.max - 3.281;
 			ac_current.max = ac_current.max - 3.281;
 
-			mains.max = mains.max * 249.73;
+			mains.max = mains.max * 214.2;
 			ac_current.max = ac_current.max * 8.0;
 
 			mains.value += (mains.max * 0.707106);
@@ -85,11 +91,11 @@ int main()
 				mains_power = 0;
 			}
 
-			mains_energy += mains_power / SEC_PER_HOUR; // SEC_PER_HOUR = 3600
+			mains_energy += (mains_power / SEC_PER_HOUR); // SEC_PER_HOUR = 3600
 
 			mains.value = 0;
 			ac_current.value = 0;
-
+			time_push++;
 			timer2_count = 0;
 			debug.printf("MAINS = ");
 			delay.ms(1);
@@ -107,9 +113,26 @@ int main()
 			delay.ms(1);
 			debug.printn(mains_energy);
 			delay.ms(1);
+			debug.printf("  ");
+			debug.printf("POWER = ");
+			delay.ms(1);
+			debug.printn(mains_power);
+			delay.ms(1);
 
 			debug.printf("\r\n");
 			GPIOA->ODR ^= (1 << 11);
+		}
+
+		if (time_push > 120)
+		{ // this is 120 seconds which is 2mins
+		  time_push = 0;
+		  debug.printf("data start push");
+			delay.ms(2000);
+
+			debug.printf("\r\n");
+		  TIM2->CR1 &= ~(1 << 0);
+			gsm_send_to_server(mains_power, mains_energy, mains.final_value, ac_current.final_value);
+		TIM2->CR1 |= 1 << 0;
 		}
 
 		// GPIOA->ODR ^= (1 << 11);

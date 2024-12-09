@@ -7,6 +7,7 @@
         "timer4.h": "c",
         "timer2.h": "c",
         "adc.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "gsm.h": "c"
     }
 }

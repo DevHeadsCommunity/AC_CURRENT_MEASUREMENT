@@ -5,7 +5,8 @@
 #include <stdio.h>
 #include "stm32f1xx.h"
 #include "uart.h"
-void gsm_send_to_server(int battery_percent, int energy_inv_used, int energy_grid_used,int energy_generated,int grid_avail,int solar_avail,int device_id,char *duration);
+void gsm_send_to_server(int power_consumed, int energy_used,
+		int ac_voltage, int current);
 void gsm_init();
 void gsm_print(uint8_t data);
 void gsm_printf(char *str);
