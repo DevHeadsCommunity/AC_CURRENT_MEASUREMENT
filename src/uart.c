@@ -80,7 +80,7 @@ void uart_printf(char *str) {
 	while (*str) {
 		uart_print(*str);
 		str++;
-	for(long i=0; i<100; i++);
+	//for(long i=0; i<300; i++);
 
 	}
 
